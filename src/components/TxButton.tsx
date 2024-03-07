@@ -116,7 +116,7 @@ const TxButton: React.FC<TxButtonProps> = ({
   };
 
   useEffect(() => {
-    setAmount('0');
+    if (!shouldApprove()) setAmount('0');
   }, [isSuccess]);
 
   return (
