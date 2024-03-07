@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 
 import { ContextProvider } from '@/context';
+import { ApolloWrapper } from '@/lib/apollo-wrapper';
 
 export const metadata: Metadata = {
   title: 'MetaStreet | Frontend Challenge',
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="flex min-h-screen">
         <link rel="icon" href="/favicon.ico" />
-        <ContextProvider>{children}</ContextProvider>
+        <ContextProvider>
+          <ApolloWrapper>{children}</ApolloWrapper>
+        </ContextProvider>
       </body>
     </html>
   );
