@@ -6,6 +6,7 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  scrollbar-width: none;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +15,15 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
+}
+
+html, body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -34,4 +44,8 @@ input::-webkit-inner-spin-button {
 
 input[type=number]{
   -moz-appearance: textfield;
+}
+
+.tabPanel:not([hidden]) {
+  display: flex;
 }
