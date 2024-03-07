@@ -19,9 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="flex min-h-screen">
         <link rel="icon" href="/favicon.ico" />
-        <ContextProvider>
-          {children}
-        </ContextProvider>
+        <ContextProvider>{children}</ContextProvider>
       </body>
     </html>
   );
