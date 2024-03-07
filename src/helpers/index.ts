@@ -10,9 +10,15 @@ const formatTokenAmount = (amount: ethers.BigNumberish | undefined) => {
 
   const formattedAmount = ethers.utils.formatUnits(amount, 18);
 
-  const match = formattedAmount.match(/^(\d+)(\.\d{0,3})?/);
+  const match = formattedAmount.match(/^(\d+)(\.\d{1,3}[1-9])?/);
 
-  return match ? `${match[1]}${match[2] || ''}` : '0';
+  if (match) {
+    const wholePart = match[1];
+    const decimalPart = match[2] ? match[2].replace(/0+$/, '') : '';
+    return `${wholePart}${decimalPart}`;
+  }
+
+  return '0';
 };
 
 const BNtoDay = (bn: BigInt | undefined) => {
