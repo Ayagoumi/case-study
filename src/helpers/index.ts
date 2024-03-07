@@ -8,11 +8,11 @@ const truncateAddress = (address: Address) => {
 const formatTokenAmount = (amount: ethers.BigNumberish | undefined) => {
   if (!amount) return '0';
 
-  const formattedAmount = ethers.utils.formatUnits(amount);
+  const formattedAmount = ethers.utils.formatUnits(amount, 18);
 
-  return parseFloat(formattedAmount)
-    .toFixed(3)
-    .replace(/\.?0+$/, '');
+  const match = formattedAmount.match(/^(\d+)(\.\d{0,3})?/);
+
+  return match ? `${match[1]}${match[2] || ''}` : '0';
 };
 
 const BNtoDay = (bn: BigInt | undefined) => {
