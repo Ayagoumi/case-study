@@ -1,22 +1,22 @@
+import type { Bytes } from 'ethers';
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { Commet } from 'react-loading-indicators';
 import type { Address } from 'viem';
 import { erc20Abi } from 'viem';
-import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
-import type { Tick } from '@/@types/interfaces';
 import PoolABI from '@/abis/Pool.json';
-import { DUMMY_WETH_TOKEN_ADDRESS } from '@/constants';
+import useAllowance from '@/hooks/useAllowance';
+import useDeposits from '@/hooks/useDeposits';
 
 interface TxButtonProps {
   amount: string;
   buttonText?: string;
   actionType: 'deposit' | 'redeem';
-  tick: Partial<Tick>;
+  raw: Bytes;
   poolID: Address;
   currencyID: Address;
-  refetch: () => void;
   setAmount: (amount: string) => void;
 }
 
@@ -24,13 +24,13 @@ const TxButton: React.FC<TxButtonProps> = ({
   amount,
   buttonText,
   actionType,
-  tick,
+  raw,
   poolID,
   currencyID,
-  refetch,
   setAmount,
 }) => {
   const { address, isConnected } = useAccount();
+  const [loading, setLoading] = useState(false);
   const [buttonState, setButtonState] = useState({
     showApprove: false,
     isDisabled: true,
@@ -39,19 +39,15 @@ const TxButton: React.FC<TxButtonProps> = ({
 
   const {
     data: hash,
-    error: txError,
+    error,
     writeContract,
     writeContractAsync,
     isError,
     isPending,
   } = useWriteContract();
   const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
-  const { data: allowance, refetch: refreshAllowance } = useReadContract({
-    address: DUMMY_WETH_TOKEN_ADDRESS,
-    abi: erc20Abi,
-    functionName: 'allowance',
-    args: [address as Address, poolID],
-  });
+  const { allowance, refreshAllowance } = useAllowance(poolID, address);
+  const { refetch } = useDeposits(poolID, address, raw);
 
   const shouldApprove = () => {
     if (actionType !== 'deposit' || Number.isNaN(parseFloat(amount))) return false;
@@ -59,54 +55,40 @@ const TxButton: React.FC<TxButtonProps> = ({
     return !allowance || allowance < depositAmountBN;
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      refetch();
-      refreshAllowance();
-    }
-  }, [isSuccess, refetch, refreshAllowance]);
-
-  useEffect(() => {
-    const isDisabled = !isConnected || !amount || parseFloat(amount) <= 0;
-    const buttonTextToShow = buttonText || actionType.charAt(0).toUpperCase() + actionType.slice(1);
-    const shouldShowApprove = shouldApprove();
-
-    setButtonState((prevState) => ({
-      ...prevState,
-      isDisabled,
-      buttonText: shouldShowApprove ? 'Approve' : buttonTextToShow,
-      showApprove: shouldShowApprove,
-    }));
-  }, [isConnected, amount, actionType, buttonText, allowance, isSuccess]);
-
   const approve = async () => {
     const depositAmountBN = BigInt(parseFloat(amount) * 1e18);
+    setLoading(true);
     await writeContractAsync({
       address: currencyID,
       abi: erc20Abi,
       functionName: 'approve',
       args: [poolID, depositAmountBN],
     });
+    setLoading(false);
   };
 
   const deposit = async () => {
     const depositAmountWei = ethers.utils.parseEther(amount);
+    setLoading(true);
     writeContract({
       address: poolID,
       abi: PoolABI,
       functionName: 'deposit',
-      args: [tick.raw, depositAmountWei, 0],
+      args: [raw, depositAmountWei, 0],
     });
+    setLoading(false);
   };
 
   const redeem = async () => {
     const depositAmountWei = ethers.utils.parseEther(amount);
+    setLoading(true);
     writeContract({
       address: poolID,
       abi: PoolABI,
       functionName: 'redeem',
-      args: [tick.raw, depositAmountWei],
+      args: [raw, depositAmountWei],
     });
+    setLoading(false);
   };
 
   const handleButtonClick = () => {
@@ -117,14 +99,31 @@ const TxButton: React.FC<TxButtonProps> = ({
 
   useEffect(() => {
     if (!shouldApprove()) setAmount('0');
-  }, [isSuccess]);
+    if (isSuccess) {
+      refetch();
+      refreshAllowance();
+    }
+  }, [isSuccess, refetch, refreshAllowance]);
+
+  useEffect(() => {
+    const isDisabled = loading || isLoading || !isConnected || !amount || parseFloat(amount) <= 0;
+    const buttonTextToShow = buttonText || actionType.charAt(0).toUpperCase() + actionType.slice(1);
+    const shouldShowApprove = shouldApprove();
+
+    setButtonState((prevState) => ({
+      ...prevState,
+      isDisabled,
+      buttonText: shouldShowApprove ? 'Approve' : buttonTextToShow,
+      showApprove: shouldShowApprove,
+    }));
+  }, [loading, isLoading, isConnected, amount, actionType, buttonText, allowance, isSuccess]);
 
   return (
     <>
       <button
         onClick={handleButtonClick}
         disabled={buttonState.isDisabled}
-        className={`mt-auto bg-brand-primary/70 text-white rounded-md p-2 w-full ${buttonState.isDisabled ? 'disabled:opacity-20' : ''}`}
+        className={`mt-auto bg-brand-primary/70 text-white rounded-md p-2 w-full disabled:opacity-50`}
       >
         {(isPending || isLoading) && !isError && !isSuccess ? (
           <Commet
@@ -138,9 +137,9 @@ const TxButton: React.FC<TxButtonProps> = ({
           buttonState.buttonText
         )}
       </button>
-      {txError && (
+      {error && (
         <div className="text-red-500 mt-3 text-center w-full">
-          Something went wrong: {txError.name}
+          Something went wrong: {error.message.split('.').slice(0, 1)}
         </div>
       )}
     </>

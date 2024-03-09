@@ -1,34 +1,36 @@
+import type { Bytes } from 'ethers';
 import { useMemo } from 'react';
 import type { Address } from 'viem';
 import { useAccount, useBalance } from 'wagmi';
 
-import type { Tick } from '@/@types/interfaces';
 import { BNtoDay, formatTokenAmount } from '@/helpers';
 
 import TxButton from './TxButton';
 
 interface TxFormProps {
   type: 'deposit' | 'redeem';
-  tick: Partial<Tick>;
+  raw: Bytes;
+  limit: BigInt;
+  duration: BigInt;
   amount: string;
   tokenSymbol: string;
   redeemLimit?: string;
   poolID: Address;
   currencyID: Address;
   setAmount: (amount: string) => void;
-  refetch: () => void;
 }
 
 const TxForm = ({
   type,
-  tick,
+  raw,
+  limit,
+  duration,
   amount,
   tokenSymbol,
   redeemLimit,
   poolID,
   currencyID,
   setAmount,
-  refetch,
 }: TxFormProps) => {
   const { address, isConnected } = useAccount();
   const { data, isLoading, error } = useBalance({
@@ -67,7 +69,7 @@ const TxForm = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 flex-1 mt-2">
+    <div className="flex flex-col gap-4 flex-1 mt-2 w-full">
       <div className="flex flex-col gap-2">
         <label className="text-xs text-gray-400">
           {type === 'deposit' ? 'Deposit' : 'Redeem'} Amount :
@@ -101,12 +103,12 @@ const TxForm = ({
           <p className="flex text-xs text-gray-400 justify-between">
             <label className="text-xs text-gray-400">Loan Limit: </label>
             <span>
-              {formatTokenAmount(tick.limit?.toString())} {tokenSymbol}
+              {formatTokenAmount(limit?.toString())} {tokenSymbol}
             </span>
           </p>
           <p className="flex text-xs text-gray-400 justify-between">
             <label className="text-xs text-gray-400">Max Loan Term: </label>
-            <span>{BNtoDay(tick.duration)} d</span>
+            <span>{BNtoDay(duration)} d</span>
           </p>
           {isConnected && (
             <p className="flex text-xs text-gray-400 justify-between">
@@ -121,10 +123,9 @@ const TxForm = ({
         amount={amount}
         buttonText={type === 'deposit' ? 'Mint' : 'Redeem'}
         actionType={type}
-        tick={tick}
+        raw={raw}
         poolID={poolID}
         currencyID={currencyID}
-        refetch={refetch}
         setAmount={setAmount}
       />
       {!isConnected && (

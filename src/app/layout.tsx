@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 
 import type { Metadata } from 'next';
 import React from 'react';
+import { SkeletonTheme } from 'react-loading-skeleton';
 
 import { ContextProvider } from '@/context';
 import { ApolloWrapper } from '@/lib/apollo-wrapper';
@@ -21,7 +22,9 @@ export default function RootLayout({
       <body className="flex min-h-screen">
         <link rel="icon" href="/favicon.ico" />
         <ContextProvider>
-          <ApolloWrapper>{children}</ApolloWrapper>
+          <SkeletonTheme baseColor="rgb(107 114 128)" highlightColor="rgb(156 163 175)">
+            <ApolloWrapper>{children}</ApolloWrapper>
+          </SkeletonTheme>
         </ContextProvider>
       </body>
     </html>

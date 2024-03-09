@@ -1,0 +1,37 @@
+interface ModalProps {
+  children: React.ReactNode;
+  setClose: () => void;
+}
+
+const Modal: React.FC<ModalProps> = ({ children, setClose }) => {
+  return (
+    <div className="fixed z-10 inset-0 overflow-y-auto flex justify-center md:items-center items-end">
+      <div className="fixed z-10 inset-0 overflow-y-auto bg-black/50" onClick={setClose} />
+      <div className="absolute min-h-[425px] z-10 bg-brand-primary/40 rounded-t-lg md:rounded-lg w-full md:w-[90%] md:max-w-[600px] h-auto blur-3xl backdrop-blur-3xl" />
+      <div className="relative flex flex-col bg-black border-brand-primary/30 min-h-[425px] z-50 p-8 rounded-t-lg border-t md:border md:rounded-lg w-full md:w-[90%] md:max-w-[600px] h-auto">
+        <button
+          onClick={setClose}
+          className="absolute top-4 right-4 text-white text-2xl focus:outline-none cursor-pointer"
+        >
+          <svg
+            width="25px"
+            height="25px"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289Z"
+              fill="#FFFFFF"
+            />
+          </svg>
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default Modal;

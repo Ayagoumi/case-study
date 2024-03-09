@@ -48,4 +48,5 @@ input[type=number]{
 
 .tabPanel:not([hidden]) {
   display: flex;
+  max-width: 100%;
 }
