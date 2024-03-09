@@ -1,7 +1,7 @@
 import type { Bytes } from 'ethers';
 
 export interface Pool {
-  id: string;
+  id: `0x${string}`;
   totalValueLocked: string;
   totalValueAvailable: string;
   totalValueUsed: string;
@@ -12,13 +12,13 @@ export interface Pool {
 }
 
 export interface CurrencyToken {
-  id: Bytes;
+  id: `0x${string}`;
   name: string;
   symbol: string;
 }
 
 export interface CollateralToken {
-  id: string;
+  id: `0x${string}`;
   name: string;
 }
 
@@ -28,7 +28,7 @@ export interface Deposit {
 }
 
 export interface Tick {
-  id: Bytes;
+  id: `0x${string}`;
   limit: BigInt;
   duration: BigInt;
   raw: Bytes;

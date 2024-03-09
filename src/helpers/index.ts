@@ -29,5 +29,4 @@ const BNtoDay = (bn: BigInt | undefined) => {
   return Number(bn) / BNDay;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { BNtoDay, formatTokenAmount, truncateAddress };

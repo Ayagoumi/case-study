@@ -10,7 +10,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Address } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
-import type { Pool } from '@/@types/interfaces';
 import PoolABI from '@/abis/Pool.json';
 
 import { GET_TICK_DETAIL } from '../apollo/queries';
@@ -20,13 +19,19 @@ import TxForm from './TxForm';
 
 interface TickDetailProps {
   poolID: Address;
-  pool: Pool;
+  currencyTokenID: Address;
+  currencyTokenSymbol: string;
   tickID: string;
-  tokenSymbol: string;
   deposits: string;
 }
 
-const TickDetail: React.FC<TickDetailProps> = ({ poolID, pool, tickID, tokenSymbol, deposits }) => {
+const TickDetail: React.FC<TickDetailProps> = ({
+  poolID,
+  currencyTokenID,
+  currencyTokenSymbol,
+  tickID,
+  deposits,
+}) => {
   const [open, setOpen] = useState<boolean>(false);
   const [approveAmount, setApproveAmount] = useState<string>('0');
   const tabsRef = useRef<TabsRef>(null);
@@ -78,10 +83,10 @@ const TickDetail: React.FC<TickDetailProps> = ({ poolID, pool, tickID, tokenSymb
             Current APR: {calculateAPR()} %
           </p> */}
           <p className="text-sm text-gray-400">
-            Loan Limit: {formatTokenAmount(data.tick.limit)} {tokenSymbol}
+            Loan Limit: {formatTokenAmount(data.tick.limit)} {currencyTokenSymbol}
           </p>
           <p className="text-sm text-gray-400">
-            Deposits: {formatTokenAmount(deposits)} {tokenSymbol}
+            Deposits: {formatTokenAmount(deposits)} {currencyTokenSymbol}
           </p>
         </div>
       </SpotlightCard>
@@ -138,8 +143,8 @@ const TickDetail: React.FC<TickDetailProps> = ({ poolID, pool, tickID, tokenSymb
                   tick={data.tick}
                   amount={approveAmount}
                   poolID={poolID}
-                  currencyID={pool.currencyToken.id as unknown as Address}
-                  tokenSymbol={tokenSymbol}
+                  currencyID={currencyTokenID}
+                  tokenSymbol={currencyTokenSymbol}
                   setAmount={setApproveAmount}
                   refetch={refetch}
                 />
@@ -151,7 +156,7 @@ const TickDetail: React.FC<TickDetailProps> = ({ poolID, pool, tickID, tokenSymb
                       <label className="text-xs text-gray-400">
                         You have up to{' '}
                         <b className="text-white">
-                          {formatTokenAmount(myTotalDeposits.toString())} {tokenSymbol}{' '}
+                          {formatTokenAmount(myTotalDeposits.toString())} {currencyTokenSymbol}{' '}
                         </b>
                         to redeem
                       </label>
@@ -162,8 +167,8 @@ const TickDetail: React.FC<TickDetailProps> = ({ poolID, pool, tickID, tokenSymb
                     tick={data.tick}
                     amount={approveAmount}
                     poolID={poolID}
-                    currencyID={pool.currencyToken.id as unknown as Address}
-                    tokenSymbol={tokenSymbol}
+                    currencyID={currencyTokenID}
+                    tokenSymbol={currencyTokenSymbol}
                     redeemLimit={myTotalDeposits.toString()}
                     setAmount={setApproveAmount}
                     refetch={refetch}

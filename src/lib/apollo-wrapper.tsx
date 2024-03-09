@@ -1,7 +1,6 @@
 'use client';
 
 import { ApolloLink, HttpLink } from '@apollo/client';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {
   ApolloNextAppProvider,
   NextSSRApolloClient,
