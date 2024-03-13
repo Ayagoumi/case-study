@@ -47,7 +47,7 @@ export default function Spotlight({ children, className = '' }: SpotlightProps) 
   useEffect(() => {
     if (containerRef.current)
       setBoxes(Array.from(containerRef.current.children).map((el) => el as HTMLElement)); // eslint-disable-line
-  }, [containerRef.current?.children.length]);
+  }, [containerRef.current?.offsetHeight, containerRef.current?.offsetWidth]);
 
   useEffect(() => {
     initContainer();
